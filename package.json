@@ -1,0 +1,54 @@
+{
+  "name": "agenttrace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source AI agent observability and debugging platform with distributed tracing, live monitoring and a TypeScript SDK.",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "examples/*"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "postinstall": "npm run build:shared && npm run build:sdk",
+    "build:shared": "npm run build -w @agenttrace/shared",
+    "build:sdk": "npm run build -w agenttrace-sdk",
+    "dev": "concurrently -n api,dashboard -c blue,magenta \"npm run dev:api\" \"npm run dev:dashboard\"",
+    "dev:api": "npm run dev -w @agenttrace/api",
+    "dev:dashboard": "npm run dev -w @agenttrace/dashboard",
+    "build": "npm run build -w agenttrace-sdk && npm run build -w @agenttrace/shared && npm run build -w @agenttrace/api && npm run build -w @agenttrace/dashboard",
+    "start:api": "npm run start -w @agenttrace/api",
+    "start:dashboard": "npm run start -w @agenttrace/dashboard",
+    "db:generate": "drizzle-kit generate --config=apps/api/drizzle.config.ts",
+    "db:migrate": "tsx apps/api/src/database/migrate-cli.ts",
+    "db:seed": "tsx apps/api/src/database/seed-cli.ts",
+    "db:studio": "drizzle-kit studio --config=apps/api/drizzle.config.ts",
+    "demo:agent": "npm run build -w agenttrace-sdk && npm run start -w @agenttrace/example-basic-agent",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:sdk": "vitest run packages/sdk",
+    "test:api": "vitest run apps/api",
+    "test:e2e": "playwright test",
+    "screenshots": "node scripts/screenshots.mjs",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "concurrently": "^10.0.7",
+    "dotenv": "^18.0.10",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^9.39.1",
+    "typescript-eslint": "^8.46.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1"
+  }
+}

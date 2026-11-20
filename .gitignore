@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Databases / local data
+*.sqlite
+*.sqlite3
+.agenttrace-data/
+pgdata/
+
+# Test and tooling artifacts
+coverage/
+playwright-report/
+test-results/
+.playwright/
+.playwright-mcp/
+.vitest/
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local screenshots that are not published
+artifacts/
+.tmp/
