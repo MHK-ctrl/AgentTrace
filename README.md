@@ -222,6 +222,37 @@ The browser suite covers real navigation, search/filtering, comparison, all four
 playback, Markdown export download, sharing dialog, demo execution, API-key create/revoke, pricing
 create/delete, error analytics and mobile navigation.
 
+## 🌐 Live Deployment (Free-Tier Public Launch)
+
+AgentTrace is deployed on **100% free-tier hosting** with shareable URLs:
+
+| Component | URL | Status |
+| --- | --- | --- |
+| **Dashboard (frontend)** | `https://cerulean-travesseiro-4c6d32.netlify.app` | ✅ Live, public, no login required |
+| **API Backend** | `https://agenttrace-api.onrender.com` | ✅ Free-tier Hobby (sleeps after 15min inactivity) |
+| **PostgreSQL Database** | Neon `crimson-wind-52900058` | ✅ 8 tables, migrations applied |
+
+⚠️ **Render API warmup note**: The first request after 15 minutes of inactivity may return 503 while the service wakes. The included `keep-alive.js` script pings every 5 minutes to minimize this.
+
+Verified on **2026-11-20** (macOS arm64, Node 26.0.0, PostgreSQL 16.14, Playwright Chromium, Netlify + Render + Neon free tier):
+
+| Check | Command | Result |
+| --- | --- | --- |
+| TypeScript | `npm run typecheck` | Pass (5 workspaces) |
+| Lint | `npm run lint` | 0 errors (5 untyped-fixture warnings) |
+| SDK tests | `npm run test:sdk` | 14/14 pass |
+| API tests | `npm run test:api` | 14/14 pass against real PostgreSQL |
+| Browser tests | `npm run test:e2e` | 9/9 pass |
+| Production build | `npm run build` | Pass |
+| Screenshots | `npm run screenshots` | 12 captured from the running dashboard |
+| **Live dashboard** | `curl -s https://cerulean-travesseiro-4c6d32.netlify.app/` | 200, AgentTrace landing page |
+| **API health** | `curl -s https://agenttrace-api.onrender.com/health` | 200 (after warmup) |
+| **CORS configured** | `https://cerulean-travesseiro-4c6d32.netlify.app` | Allowed origin in Render config |
+
+The browser suite covers real navigation, search/filtering, comparison, all four trace views,
+playback, Markdown export download, sharing dialog, demo execution, API-key create/revoke, pricing
+create/delete, error analytics and mobile navigation.
+
 ## Security and data handling
 
 - Single-tenant, local-first admin surface. No SSO/RBAC; do not expose it directly to the public

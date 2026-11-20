@@ -1,0 +1,25 @@
+# Netlify configuration for AgentTrace dashboard
+
+[build]
+  # Build from root; the root package.json build script builds all workspaces
+  command = "npm run build"
+  # The build script creates .next/ at root containing both app and package outputs
+  publish = "apps/dashboard/.next"
+
+[context.production]
+  # Environment variables for production deploy
+  [env]
+    AGENTTRACE_API_URL = "https://agenttrace-api.onrender.com"
+    AGENTTRACE_API_PORT = "4000"
+    AGENTTRACE_CORS_ORIGINS = "https://cerulean-travesseiro-4c6d32.netlify.app"
+    AGENTTRACE_DASHBOARD_TOKEN = "091d558aefb30dbcd08f33f4225f15c76a641b8943dbf2de892a2d7977d00bed"
+    NEXT_PUBLIC_SITE_URL = "https://cerulean-travesseiro-4c6d32.netlify.app"
+    AGENTTRACE_DEMO_TTL_HOURS = "24"
+    AGENTTRACE_DEMO_MAX_RUNS = "8"
+    AGENTTRACE_DEMO_COOLDOWN_SECONDS = "3"
+    AGENTTRACE_DEMO_MAX_CONCURRENT = "3"
+
+[context.develop]
+  AGENTTRACE_API_URL = "http://127.0.0.1:4000"
+  AGENTTRACE_DASHBOARD_TOKEN = ""
+  NEXT_PUBLIC_SITE_URL = "http://localhost:3000"
