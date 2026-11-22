@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ensureDefaultProject } from "@/lib/account";
-import { githubOAuthConfig, profileToUser, type GitHubProfile } from "@/lib/github-oauth";
+import {
+  dashboardBaseUrl,
+  githubOAuthConfig,
+  profileToUser,
+  type GitHubProfile,
+} from "@/lib/github-oauth";
 import {
   USER_COOKIE,
   createUserSessionToken,
@@ -13,8 +18,10 @@ export const dynamic = "force-dynamic";
 
 const STATE_COOKIE = "agenttrace_oauth_state";
 
-function fail(request: NextRequest, code: string) {
-  const response = NextResponse.redirect(new URL(`/login?error=${code}`, request.url));
+function fail(_request: NextRequest, code: string) {
+  const response = NextResponse.redirect(
+    new URL(`/login?error=${code}`, dashboardBaseUrl()),
+  );
   response.cookies.set(STATE_COOKIE, "", { path: "/", maxAge: 0 });
   return response;
 }
@@ -74,7 +81,7 @@ export async function GET(request: NextRequest) {
     const user = profileToUser(profile);
     await ensureDefaultProject(user);
 
-    const response = NextResponse.redirect(new URL("/overview", request.url));
+    const response = NextResponse.redirect(new URL("/overview", dashboardBaseUrl()));
     response.cookies.set(USER_COOKIE, createUserSessionToken(user), userSessionCookieOptions());
     response.cookies.set(STATE_COOKIE, "", { path: "/", maxAge: 0 });
     return response;

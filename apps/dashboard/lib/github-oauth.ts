@@ -5,7 +5,7 @@ export interface GitHubOAuthConfig {
   enabled: boolean;
 }
 
-function publicBaseUrl(): string {
+export function dashboardBaseUrl(): string {
   return (
     process.env.AGENTTRACE_DASHBOARD_URL?.trim() ||
     process.env.RENDER_EXTERNAL_URL?.trim() ||
@@ -19,7 +19,7 @@ export function githubOAuthConfig(): GitHubOAuthConfig {
   const clientSecret = process.env.GITHUB_CLIENT_SECRET?.trim() ?? "";
   const callbackUrl =
     process.env.AGENTTRACE_GITHUB_CALLBACK_URL?.trim() ||
-    `${publicBaseUrl()}/api/auth/github/callback`;
+    `${dashboardBaseUrl()}/api/auth/github/callback`;
   return {
     clientId,
     clientSecret,

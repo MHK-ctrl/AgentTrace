@@ -1,16 +1,16 @@
 import { randomBytes } from "node:crypto";
-import { NextResponse, type NextRequest } from "next/server";
-import { githubAuthorizeUrl, githubOAuthConfig } from "@/lib/github-oauth";
+import { NextResponse } from "next/server";
+import { dashboardBaseUrl, githubAuthorizeUrl, githubOAuthConfig } from "@/lib/github-oauth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const STATE_COOKIE = "agenttrace_oauth_state";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const config = githubOAuthConfig();
   if (!config.enabled) {
-    return NextResponse.redirect(new URL("/login?error=github_not_configured", request.url));
+    return NextResponse.redirect(new URL("/login?error=github_not_configured", dashboardBaseUrl()));
   }
 
   const state = randomBytes(24).toString("base64url");
