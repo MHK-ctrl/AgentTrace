@@ -33,9 +33,17 @@ function bucketTick(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   if (value.endsWith("T00:00:00Z")) {
-    return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }).format(date);
   }
-  return new Intl.DateTimeFormat("en-US", { hour: "2-digit", minute: "2-digit" }).format(date);
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+  }).format(date);
 }
 
 const tooltipStyle = {

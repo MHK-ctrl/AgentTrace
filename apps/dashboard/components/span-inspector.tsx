@@ -240,7 +240,7 @@ export function SpanInspector({
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-xs font-medium text-ink">{event.name}</p>
                     <time className="mono text-[9px] text-faint">
-                      {new Date(event.timestamp).toLocaleTimeString()}
+                      {new Date(event.timestamp).toLocaleTimeString("en-US", { timeZone: "UTC" })}
                     </time>
                   </div>
                   {Object.keys(event.attributes).length > 0 ? (

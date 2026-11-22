@@ -229,7 +229,10 @@ export default function TraceDetailPage() {
         />
         <Metric label="Errors" value={<span className={trace.errorCount > 0 ? "text-danger" : ""}>{trace.errorCount}</span>} />
         <Metric label="Completed" value={trace.completedAt ? formatDate(trace.completedAt) : "running"} />
-        <Metric label="Range" value={`${new Date(range.from).toLocaleDateString()} → ${new Date(range.to).toLocaleDateString()}`} />
+        <Metric
+          label="Range"
+          value={`${new Date(range.from).toLocaleDateString("en-US", { timeZone: "UTC" })} → ${new Date(range.to).toLocaleDateString("en-US", { timeZone: "UTC" })}`}
+        />
       </Card>
 
       {trace.unknownModels.length > 0 ? (

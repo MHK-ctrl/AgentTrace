@@ -193,7 +193,7 @@ export function Playback({
                 {formatDuration(span.durationMs)}
               </span>
               <span className="mono hidden shrink-0 text-[10px] text-faint md:block" title={formatTimestamp(span.startedAt)}>
-                {new Date(span.startedAt).toLocaleTimeString()}
+                {new Date(span.startedAt).toLocaleTimeString("en-US", { timeZone: "UTC" })}
               </span>
             </button>
           ))
