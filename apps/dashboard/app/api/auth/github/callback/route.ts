@@ -59,9 +59,23 @@ export async function GET(request: NextRequest) {
       cache: "no-store",
       signal: AbortSignal.timeout(15_000),
     });
-    if (!tokenResponse.ok) return fail(request, "github_failed");
-    const tokenBody = (await tokenResponse.json()) as { access_token?: string };
-    if (!tokenBody.access_token) return fail(request, "github_failed");
+    if (!tokenResponse.ok) {
+      console.error("[auth/github] token exchange HTTP", tokenResponse.status);
+      return fail(request, "github_failed");
+    }
+    const tokenBody = (await tokenResponse.json()) as {
+      access_token?: string;
+      error?: string;
+      error_description?: string;
+    };
+    if (!tokenBody.access_token) {
+      console.error(
+        "[auth/github] token exchange rejected",
+        tokenBody.error ?? "unknown",
+        tokenBody.error_description ?? "",
+      );
+      return fail(request, "github_failed");
+    }
 
     const profileResponse = await fetch("https://api.github.com/user", {
       headers: {
@@ -73,7 +87,10 @@ export async function GET(request: NextRequest) {
       cache: "no-store",
       signal: AbortSignal.timeout(15_000),
     });
-    if (!profileResponse.ok) return fail(request, "github_failed");
+    if (!profileResponse.ok) {
+      console.error("[auth/github] profile fetch HTTP", profileResponse.status);
+      return fail(request, "github_failed");
+    }
 
     const profile = (await profileResponse.json()) as GitHubProfile;
     if (!profile?.id || !profile?.login) return fail(request, "github_failed");
