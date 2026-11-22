@@ -3,6 +3,8 @@
 **The flight recorder for AI agents.** Open-source, local-first distributed tracing, live execution
 monitoring, token economics and failure analysis for AI agents.
 
+**Website:** https://agenttrace-dashboard.onrender.com
+
 `MIT` · `Developer preview 0.1.0` · `Node.js 20.11+` · `PostgreSQL 14+` · `No Docker required`
 
 ![AgentTrace overview](docs/screenshots/overview.png)
