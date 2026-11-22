@@ -40,7 +40,9 @@ function allowSessionStart(address: string): boolean {
  * so production redirects use the configured public dashboard origin.
  */
 function redirectTo(request: NextRequest, path: string): NextResponse {
-  const configured = process.env.AGENTTRACE_DASHBOARD_URL?.trim();
+  const configured =
+    process.env.AGENTTRACE_DASHBOARD_URL?.trim() ||
+    process.env.RENDER_EXTERNAL_URL?.trim();
   const base =
     process.env.NODE_ENV === "production" && configured
       ? configured.replace(/\/+$/, "")
