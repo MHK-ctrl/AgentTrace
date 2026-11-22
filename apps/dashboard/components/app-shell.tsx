@@ -142,7 +142,7 @@ function SidebarStatus() {
         <span className="mono text-[10px] text-faint">v0.1.0</span>
       </div>
       <p className="mt-2 text-[10px] leading-relaxed text-faint">
-        Local-first control plane. Telemetry stays on your infrastructure.
+        Private workspaces. Traces stay scoped to your GitHub account.
       </p>
       <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
         <Link href="/demo" className="text-[10px] text-accent hover:underline">

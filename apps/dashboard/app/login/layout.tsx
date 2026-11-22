@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Owner sign in",
+  title: "Sign in",
   robots: { index: false, follow: false },
 };
 

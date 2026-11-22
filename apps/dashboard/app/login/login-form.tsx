@@ -69,7 +69,7 @@ export function LoginForm({
               </span>
               <div>
                 <p className="text-sm font-semibold tracking-[-0.02em] text-ink">AgentTrace</p>
-                <p className="text-[9px] uppercase tracking-[0.16em] text-faint">owner console</p>
+                <p className="text-[9px] uppercase tracking-[0.16em] text-faint">private workspace</p>
               </div>
             </div>
             <h1 className="text-lg font-semibold tracking-[-0.02em] text-ink">Sign in to your workspace</h1>
