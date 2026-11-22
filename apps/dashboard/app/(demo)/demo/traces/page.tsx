@@ -29,9 +29,6 @@ export default function DemoTraceExplorerPage() {
   const [sort, setSort] = useState("started_at:desc");
   const [page, setPage] = useState(1);
   const debounced = useDebounced(search, 300);
-
-  const to = new Date().toISOString();
-  const from = new Date(Date.now() - 7 * 86_400_000).toISOString();
   const filters = useDemoApi<FilterOptions>("/v1/filter-options");
 
   useEffect(() => {
@@ -39,6 +36,8 @@ export default function DemoTraceExplorerPage() {
   }, [debounced, status, agent, model, sort]);
 
   const path = useMemo(() => {
+    const to = new Date().toISOString();
+    const from = new Date(Date.now() - 7 * 86_400_000).toISOString();
     const [sortKey, order] = sort.split(":");
     return `/v1/traces?${qs({
       from,
@@ -52,7 +51,7 @@ export default function DemoTraceExplorerPage() {
       sort: sortKey,
       order,
     })}`;
-  }, [from, to, debounced, status, agent, model, page, sort]);
+  }, [debounced, status, agent, model, page, sort]);
 
   const result = useDemoApi<TraceListResponse>(path, liveKey);
   const hasFilters = Boolean(debounced || status || agent || model);

@@ -1,0 +1,44 @@
+# Render.com blueprint for the AgentTrace API.
+# The dashboard is deployed on Netlify (or Vercel); only the API runs here.
+#
+# Secrets are intentionally NOT committed. Set these in the Render dashboard:
+#   DATABASE_URL                 (Neon/Supabase Postgres connection string)
+#   AGENTTRACE_DASHBOARD_TOKEN   (32-byte hex, must match the dashboard env)
+#   AGENTTRACE_DEMO_PROJECT_ID   (project that owns public demo sessions)
+#   AGENTTRACE_DEMO_API_KEY      (API key for that project)
+
+services:
+  - type: web
+    name: agenttrace-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start:api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AGENTTRACE_API_PORT
+        value: "4000"
+      - key: AGENTTRACE_DASHBOARD_URL
+        value: https://cerulean-travesseiro-4c6d32.netlify.app
+      - key: AGENTTRACE_CORS_ORIGINS
+        value: https://cerulean-travesseiro-4c6d32.netlify.app
+      - key: AGENTTRACE_PUBLIC_DEMO
+        value: "true"
+      - key: AGENTTRACE_DEMO_TTL_HOURS
+        value: "24"
+      - key: AGENTTRACE_DEMO_MAX_RUNS
+        value: "8"
+      - key: AGENTTRACE_DEMO_COOLDOWN_SECONDS
+        value: "3"
+      - key: AGENTTRACE_DEMO_MAX_CONCURRENT
+        value: "3"
+      - key: DATABASE_URL
+        sync: false
+      - key: AGENTTRACE_DASHBOARD_TOKEN
+        sync: false
+      - key: AGENTTRACE_DEMO_PROJECT_ID
+        sync: false
+      - key: AGENTTRACE_DEMO_API_KEY
+        sync: false

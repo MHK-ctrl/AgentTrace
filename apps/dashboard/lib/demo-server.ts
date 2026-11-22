@@ -79,9 +79,41 @@ async function parseApiError(response: Response): Promise<DemoApiError> {
   );
 }
 
+/*
+ * Every server render and every BFF request resolves the session. Caching a
+ * successful resolution for a few seconds keeps the dashboard from exhausting
+ * the API's per-IP rate limit during normal navigation and live updates.
+ */
+const RESOLVE_CACHE_TTL_MS = 10_000;
+const resolveCache = new Map<string, { value: ResolvedDemoSession; expiresAt: number }>();
+
+function readResolveCache(key: string): ResolvedDemoSession | null {
+  const hit = resolveCache.get(key);
+  if (!hit) return null;
+  if (hit.expiresAt <= Date.now()) {
+    resolveCache.delete(key);
+    return null;
+  }
+  return hit.value;
+}
+
+function writeResolveCache(key: string, value: ResolvedDemoSession): void {
+  if (resolveCache.size > 500) {
+    const now = Date.now();
+    for (const [entryKey, entry] of resolveCache) {
+      if (entry.expiresAt <= now) resolveCache.delete(entryKey);
+    }
+  }
+  resolveCache.set(key, { value, expiresAt: Date.now() + RESOLVE_CACHE_TTL_MS });
+}
+
 export async function resolveDemoSession(): Promise<ResolvedDemoSession | null> {
-  const parsed = parseCookie((await cookies()).get(DEMO_COOKIE)?.value);
-  if (!parsed) return null;
+  const cookie = (await cookies()).get(DEMO_COOKIE)?.value;
+  const parsed = parseCookie(cookie);
+  if (!parsed || !cookie) return null;
+
+  const cached = readResolveCache(cookie);
+  if (cached) return cached;
 
   try {
     const response = await publicDemoRequest(
@@ -89,18 +121,34 @@ export async function resolveDemoSession(): Promise<ResolvedDemoSession | null> 
       parsed,
       AbortSignal.timeout(8_000),
     );
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const error = await parseApiError(response);
+      // Only an authentication/expiry response means the cookie is unusable.
+      // Rate limits and upstream failures must not start a new session.
+      if ([401, 403, 404, 410].includes(response.status)) return null;
+      throw error;
+    }
     const payload = (await response.json()) as { session: DemoSession };
-    return { session: payload.session, token: parsed.token };
-  } catch {
-    return null;
+    const resolved = { session: payload.session, token: parsed.token };
+    writeResolveCache(cookie, resolved);
+    return resolved;
+  } catch (error) {
+    if (error instanceof DemoApiError) {
+      if ([401, 403, 404, 410].includes(error.status)) return null;
+      throw error;
+    }
+    throw new DemoApiError("The demo service is temporarily unavailable", 503);
   }
 }
 
 export async function requireDemoSession(): Promise<ResolvedDemoSession> {
-  const resolved = await resolveDemoSession();
-  if (!resolved) redirect("/api/demo/start?next=/demo");
-  return resolved;
+  try {
+    const resolved = await resolveDemoSession();
+    if (resolved) return resolved;
+  } catch {
+    redirect("/demo-unavailable?reason=unavailable");
+  }
+  redirect("/api/demo/start?next=/demo");
 }
 
 export async function createDemoSession(): Promise<CreatedDemoSession> {

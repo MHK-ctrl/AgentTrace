@@ -36,7 +36,14 @@ function allowSessionStart(address: string): boolean {
 
 export async function GET(request: NextRequest) {
   const next = sanitizeDemoNext(request.nextUrl.searchParams.get("next"));
-  const existing = await resolveDemoSession();
+  let existing;
+  try {
+    existing = await resolveDemoSession();
+  } catch {
+    return NextResponse.redirect(new URL("/demo-unavailable?reason=unavailable", request.url), {
+      headers: { "cache-control": "no-store" },
+    });
+  }
   if (existing) {
     return NextResponse.redirect(new URL(next, request.url), {
       headers: { "cache-control": "no-store" },

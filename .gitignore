@@ -40,3 +40,7 @@ npm-debug.log*
 # Local screenshots that are not published
 artifacts/
 .tmp/
+.vercel
+
+# Netlify build artifacts
+.netlify/

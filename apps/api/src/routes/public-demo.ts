@@ -51,7 +51,9 @@ export function registerPublicDemoRoutes(app: FastifyInstance, deps: RouteDeps):
     "/v1/public-demo/sessions/resolve",
     {
       preHandler: auth,
-      config: { rateLimit: { max: 300, timeWindow: "1 minute" } },
+      // Server-to-server only: every dashboard render and BFF request comes
+      // from one egress IP, so a low per-IP cap would throttle all visitors.
+      config: { rateLimit: { max: 6_000, timeWindow: "1 minute" } },
     },
     async (request) => {
       enabled();

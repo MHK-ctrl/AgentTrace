@@ -26,7 +26,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const resolved = await resolveDemoSession();
+  let resolved;
+  try {
+    resolved = await resolveDemoSession();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "demo_unavailable", message: "The demo service is temporarily unavailable" } },
+      { status: 503, headers: { "cache-control": "no-store" } },
+    );
+  }
   if (!resolved) {
     return NextResponse.json(
       { error: { code: "demo_expired", message: "The demo session has expired" } },

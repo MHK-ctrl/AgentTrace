@@ -126,10 +126,13 @@ export default function DemoComparePage() {
   const [aId, setAId] = useState<string | null>(null);
   const [bId, setBId] = useState<string | null>(null);
 
-  const to = new Date().toISOString();
-  const from = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const range = useMemo(() => {
+    const to = new Date();
+    const from = new Date(to.getTime() - 7 * 86_400_000);
+    return `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
+  }, []);
   const list = useDemoApi<TraceListResponse>(
-    `/v1/traces?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&pageSize=50&sort=started_at&order=desc`,
+    `/v1/traces?${range}&pageSize=50&sort=started_at&order=desc`,
     liveKey,
   );
 

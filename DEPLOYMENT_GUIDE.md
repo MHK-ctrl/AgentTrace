@@ -8,13 +8,15 @@ Deploy AgentTrace on **free-tier only** platforms:
 
 No paid subscriptions, no credit card required.
 
+> **Security notice:** Earlier commits in this public repository contained a live dashboard token and a Neon connection string. Treat both as compromised. Rotate the Neon role password and generate a new dashboard token (`openssl rand -hex 32`) before redeploying, then update Render and Netlify. The current tree has been redacted, but Git history still contains the old values.
+
 ---
 
 ## Prerequisites (local)
 
 | Requirement | Status |
 |---|---|
-| Node.js >= 18 | ✅ Verified |
+| Node.js >= 20.11 | ✅ Verified |
 | PostgreSQL running locally | ✅ `pg_isready` accepts connections |
 | AgentTrace codebase | ✅ All 28 tests passing |
 | GitHub repository | ✅ PUBLIC at https://github.com/MHK-ctrl/AgentTrace |
@@ -51,7 +53,7 @@ Verify:
    # From your local machine, export and import
    pg_dump -h localhost -U rubinakhan -d agenttrace > agenttrace_dump.sql
    # In Neon SQL editor, run:
-   psql "postgresql://ep......neon.tech/agenttrace?sslmode=require" -f agenttrace_dump.sql
+   psql "postgresql://USER:PASSWORD@HOST/DB?sslmode=require" -f agenttrace_dump.sql
    ```
 
 4. **Copy the connection string**:
@@ -85,17 +87,17 @@ Verify:
 
    ```
    NODE_ENV=production
-   AGENTTRACE_DASHBOARD_TOKEN=03dd8bb866fac7b34ec16e5fb42863a65bc3416fac1e9cbc473a8714a467c8cc
+   AGENTTRACE_DASHBOARD_TOKEN=REPLACE_WITH_A_FRESH_32_BYTE_HEX_TOKEN
    AGENTTRACE_API_URL=https://agenttrace-api.onrender.com
    AGENTTRACE_API_PORT=4000
-   AGENTTRACE_DASHBOARD_URL=https://agenttrace-dashboard.netlify.app
-   AGENTTRACE_CORS_ORIGINS=https://agenttrace-dashboard.netlify.app
+   AGENTTRACE_DASHBOARD_URL=https://cerulean-travesseiro-4c6d32.netlify.app
+   AGENTTRACE_CORS_ORIGINS=https://cerulean-travesseiro-4c6d32.netlify.app
    AGENTTRACE_PUBLIC_DEMO=true
    AGENTTRACE_DEMO_TTL_HOURS=24
    AGENTTRACE_DEMO_MAX_RUNS=8
    AGENTTRACE_DEMO_COOLDOWN_SECONDS=3
    AGENTTRACE_DEMO_MAX_CONCURRENT=3
-   DATABASE_URL=postgresql://ep......neon.tech/agenttrace?sslmode=require
+   DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB?sslmode=require
    ```
 
 5. **Deploy**:
@@ -145,26 +147,22 @@ Render free-tier services sleep after **15 minutes of inactivity**. To minimize 
 2. New site from Git:
    - Connect to GitHub
    - Select repo: `MHK-ctrl/AgentTrace`
-   - Build command: `npm run build -w @agenttrace/dashboard`
-     - Or: `npm run build` (root-level script that builds all workspaces)
+   - Build command: `npm run build` (root-level script that builds all workspaces)
    - Publish directory: `apps/dashboard/.next`
-
-   **Alternative: Use root-level build**
-   - Build command: `npm run build`
-   - Publish directory: `.next` (created at root by the build script)
+   - The repository's `netlify.toml` already sets these; Netlify's Next.js runtime serves the app.
 
 3. **Add Environment Variables** (Site → Site settings → Build & deploy → Environment):
 
    ```
    AGENTTRACE_API_URL=https://agenttrace-api.onrender.com
-   AGENTTRACE_DASHBOARD_TOKEN=03dd8bb866fac7b34ec16e5fb42863a65bc3416fac1e9cbc473a8714a467c8cc
-   NEXT_PUBLIC_SITE_URL=https://agenttrace-dashboard.netlify.app
+   AGENTTRACE_DASHBOARD_TOKEN=REPLACE_WITH_A_FRESH_32_BYTE_HEX_TOKEN
+   NEXT_PUBLIC_SITE_URL=https://cerulean-travesseiro-4c6d32.netlify.app
    ```
 
 4. **Deploy**:
    - Click "Deploy site"
    - Wait 1-2 minutes
-   - Site URL will be like: `https://agenttrace-dashboard.netlify.app`
+   - Site URL will be like: `https://cerulean-travesseiro-4c6d32.netlify.app`
 
 5. **Verify**:
    - Visit the Netlify URL
@@ -223,10 +221,10 @@ gh repo set-topics MHK-ctrl/AgentTrace \
 
 | ✅ Check | Verification |
 |---|---|
-| Frontend loads publicly | `https://agenttrace-dashboard.netlify.app` shows landing page |
+| Frontend loads publicly | `https://cerulean-travesseiro-4c6d32.netlify.app` shows landing page |
 | Demo page works | Navigate to `/demo` and run sample agent |
 | API health endpoint | `GET https://agenttrace-api.onrender.com/health` returns 200 |
-| WebSocket connectivity | Open devtools → WS connection to `/ws/demos/{token}` |
+| WebSocket connectivity | Open devtools → WS connection to `/ws?projectId=...` |
 | API tests pass (remote) | Run with remote DATABASE_URL |
 | SDK tests pass | `npm run test:sdk` |
 | Owner console protected | `/login` requires `AGENTTRACE_DASHBOARD_TOKEN` HTTP-only cookie |
@@ -242,24 +240,24 @@ gh repo set-topics MHK-ctrl/AgentTrace \
 | Variable | Value | Source |
 |---|---|---|
 | `NODE_ENV` | `production` | Standard |
-| `AGENTTRACE_DASHBOARD_TOKEN` | `03dd8bb866fac7b34ec16e5fb42863a65bc3416fac1e9cbc473a8714a467c8cc` | Pre-generated 32-char hex |
+| `AGENTTRACE_DASHBOARD_TOKEN` | Generated with `openssl rand -hex 32` | Set in the Render dashboard; never commit it |
 | `AGENTTRACE_API_URL` | `https://agenttrace-api.onrender.com` | Set after Render deploy |
 | `AGENTTRACE_API_PORT` | `4000` | Port Fastify listens on |
-| `AGENTTRACE_DASHBOARD_URL` | `https://agenttrace-dashboard.netlify.app` | Set after Netlify deploy |
-| `AGENTTRACE_CORS_ORIGINS` | `https://agenttrace-dashboard.netlify.app` | Netlify URL |
+| `AGENTTRACE_DASHBOARD_URL` | `https://cerulean-travesseiro-4c6d32.netlify.app` | Set after Netlify deploy |
+| `AGENTTRACE_CORS_ORIGINS` | `https://cerulean-travesseiro-4c6d32.netlify.app` | Netlify URL |
 | `AGENTTRACE_PUBLIC_DEMO` | `true` | Enables demo mode |
 | `AGENTTRACE_DEMO_TTL_HOURS` | `24` | Session retention |
 | `AGENTTRACE_DEMO_MAX_RUNS` | `8` | Max runs per session |
 | `AGENTTRACE_DEMO_COOLDOWN_SECONDS` | `3` | Cooldown between runs |
 | `AGENTTRACE_DEMO_MAX_CONCURRENT` | `3` | Max concurrent runs |
-| `DATABASE_URL` | `postgresql://...neon.tech/agenttrace?sslmode=require` | Neon connection string |
+| `DATABASE_URL` | `postgresql://USER:PASSWORD@HOST/DB?sslmode=require | Neon connection string |
 
 ### Netlify Dashboard:
 | Variable | Value | Source |
 |---|---|---|
 | `AGENTTRACE_API_URL` | `https://agenttrace-api.onrender.com` | Render service URL |
-| `AGENTTRACE_DASHBOARD_TOKEN` | `03dd8bb866fac7b34ec16e5fb42863a65bc3416fac1e9cbc473a8714a467c8cc` | Same token |
-| `NEXT_PUBLIC_SITE_URL` | `https://agenttrace-dashboard.netlify.app` | Netlify URL |
+| `AGENTTRACE_DASHBOARD_TOKEN` | Same token as Render | Set in Netlify UI; never commit it |
+| `NEXT_PUBLIC_SITE_URL` | `https://cerulean-travesseiro-4c6d32.netlify.app` | Netlify URL |
 
 ### Neon Database:
 | Variable | Value |
@@ -308,7 +306,7 @@ If anything goes wrong:
 3. **Neon**: Project retains data; create new branch or reset password via console
 4. **Local**: All code and migrations remain on GitHub; `npm run dev` restarts local infra
 
-All configurations are version-controlled in the Git repository. No secrets are baked into the code — everything is via environment variables.
+All configuration is version-controlled. Deployment secrets belong in each platform's environment settings; never in Git. If a credential was ever committed, rotate it — removing the file does not remove Git history.
 
 ---
 
@@ -326,7 +324,7 @@ curl http://127.0.0.1:4000/health
 # Should: {"status":"ok","version":"0.1.0",...}
 
 # 3. Open both live URLs in browser
-#   - Dashboard: https://agenttrace-dashboard.netlify.app
+#   - Dashboard: https://cerulean-travesseiro-4c6d32.netlify.app
 #   - API health: https://agenttrace-api.onrender.com/health
 ```
 

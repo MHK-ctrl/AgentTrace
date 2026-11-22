@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 import {
   DurationsChart,
   LatencyChart,
@@ -48,9 +49,13 @@ import {
 export default function DemoOverviewPage() {
   const { session, eventCounter } = useDemoWorkspace();
   const liveKey = useLiveKey(eventCounter);
-  const to = new Date().toISOString();
-  const from = new Date(Date.now() - 7 * 86_400_000).toISOString();
-  const range = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+  /* Freeze the range for the lifetime of the page. Rebuilding it on every
+     render changes the query string and makes useDemoApi fetch forever. */
+  const range = useMemo(() => {
+    const to = new Date();
+    const from = new Date(to.getTime() - 7 * 86_400_000);
+    return `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
+  }, []);
 
   const overview = useDemoApi<OverviewResponse>(`/v1/analytics/overview?${range}`, liveKey);
   const recent = useDemoApi<TraceListResponse>(

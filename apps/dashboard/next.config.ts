@@ -9,8 +9,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   devIndicators: false,
+  output: "standalone",
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts"],
+    // Disable Turbopack, use webpack instead
+    // This is needed for Netlify compatibility
+    // turbo: { disableTurbopack: true },  // Removed - not recognized in Next.js 16
   },
   async headers() {
     return [
@@ -24,6 +28,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Configure for static export to work with Netlify
+  // This generates static HTML that Netlify can serve without a server
+  trailingSlash: true,
 };
 
+export const revalidate = 3600;
 export default nextConfig;

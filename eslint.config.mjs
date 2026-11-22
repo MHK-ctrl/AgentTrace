@@ -5,6 +5,9 @@ export default tseslint.config(
     ignores: [
       "**/node_modules/**",
       "**/.next/**",
+      "**/.netlify/**",
+      "**/.vercel/**",
+      "**/.tmp/**",
       "**/dist/**",
       "**/coverage/**",
       "**/playwright-report/**",

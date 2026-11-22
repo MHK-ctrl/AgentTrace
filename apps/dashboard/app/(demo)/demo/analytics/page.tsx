@@ -7,6 +7,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 import {
   DurationsChart,
   LatencyChart,
@@ -40,9 +41,15 @@ import {
 export default function DemoAnalyticsPage() {
   const { eventCounter } = useDemoWorkspace();
   const liveKey = useLiveKey(eventCounter);
-  const to = new Date().toISOString();
-  const from = new Date(Date.now() - 7 * 86_400_000).toISOString();
-  const range = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+  const { from, to, range } = useMemo(() => {
+    const end = new Date();
+    const start = new Date(end.getTime() - 7 * 86_400_000);
+    return {
+      from: start.toISOString(),
+      to: end.toISOString(),
+      range: `from=${encodeURIComponent(start.toISOString())}&to=${encodeURIComponent(end.toISOString())}`,
+    };
+  }, []);
 
   const analytics = useDemoApi<OverviewResponse>(`/v1/analytics/overview?${range}`, liveKey);
   const errors = useDemoApi<{ groups: ErrorGroup[]; totalGroups: number }>(

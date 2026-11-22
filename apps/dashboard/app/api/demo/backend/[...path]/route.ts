@@ -31,7 +31,15 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
-  const resolved = await resolveDemoSession();
+  let resolved;
+  try {
+    resolved = await resolveDemoSession();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "demo_unavailable", message: "The demo service is temporarily unavailable" } },
+      { status: 503, headers: { "cache-control": "no-store", "retry-after": "5" } },
+    );
+  }
   if (!resolved) {
     return NextResponse.json(
       { error: { code: "demo_expired", message: "Your demo session has expired. Reload to start a new one." } },
