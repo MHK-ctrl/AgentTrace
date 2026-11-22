@@ -1,9 +1,14 @@
 # Render.com blueprint for the AgentTrace API.
 # The dashboard is deployed on Netlify (or Vercel); only the API runs here.
 #
-# Secrets are intentionally NOT committed. Set these in the Render dashboard:
-#   DATABASE_URL                 (Neon/Supabase Postgres connection string)
+# The database is provisioned by Render. Only the dashboard token is a secret.
 #   AGENTTRACE_DASHBOARD_TOKEN   (32-byte hex, must match the dashboard env)
+
+databases:
+  - name: agenttrace-db
+    plan: free
+    databaseName: agenttrace
+    user: agenttrace
 
 services:
   - type: web
@@ -11,7 +16,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm ci --include=dev && npm run build -w @agenttrace/api
-    startCommand: npm run start:api
+    startCommand: npm run db:migrate && npm run start:api
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
@@ -31,6 +36,8 @@ services:
       - key: AGENTTRACE_DEMO_MAX_CONCURRENT
         value: "3"
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: agenttrace-db
+          property: connectionString
       - key: AGENTTRACE_DASHBOARD_TOKEN
         sync: false
