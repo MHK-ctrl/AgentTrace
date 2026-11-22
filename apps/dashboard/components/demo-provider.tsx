@@ -53,7 +53,6 @@ export function DemoProvider({
   useEffect(() => {
     if (!themeReady) return;
     document.documentElement.classList.toggle("light", theme === "light");
-    document.documentElement.style.colorScheme = theme;
     try {
       localStorage.setItem("agenttrace-theme", theme);
     } catch {

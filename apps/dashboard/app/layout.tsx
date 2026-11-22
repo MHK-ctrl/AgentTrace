@@ -50,7 +50,6 @@ const themeScript = `
     var stored = localStorage.getItem("agenttrace-theme");
     var dark = stored ? stored === "dark" : true;
     document.documentElement.classList.toggle("light", !dark);
-    document.documentElement.style.colorScheme = dark ? "dark" : "light";
   } catch (e) {}
 })();
 `;
