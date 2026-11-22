@@ -23,8 +23,11 @@ export function slugify(value: string): string {
     .slice(0, 60);
 }
 
-export async function listProjects(db: Database): Promise<ProjectSummary[]> {
-  const rows = await db
+export async function listProjects(
+  db: Database,
+  ownerGithubId?: string | null,
+): Promise<ProjectSummary[]> {
+  const base = db
     .select({
       id: projects.id,
       name: projects.name,
@@ -36,9 +39,12 @@ export async function listProjects(db: Database): Promise<ProjectSummary[]> {
       lastTraceAt: max(traces.startedAt),
     })
     .from(projects)
-    .leftJoin(traces, eq(traces.projectId, projects.id))
-    .groupBy(projects.id)
-    .orderBy(projects.createdAt);
+    .leftJoin(traces, eq(traces.projectId, projects.id));
+
+  const scoped = ownerGithubId
+    ? base.where(eq(projects.ownerGithubId, ownerGithubId))
+    : base;
+  const rows = await scoped.groupBy(projects.id).orderBy(projects.createdAt);
 
   return rows.map((row) => ({
     ...row,
@@ -48,7 +54,7 @@ export async function listProjects(db: Database): Promise<ProjectSummary[]> {
 
 export async function createProject(
   db: Database,
-  input: { name: string; description?: string },
+  input: { name: string; description?: string; ownerGithubId?: string },
 ): Promise<ProjectSummary> {
   const name = input.name.trim();
   if (!name) throw badRequest("Project name is required");
@@ -69,6 +75,7 @@ export async function createProject(
       name,
       slug,
       description: input.description?.trim() || null,
+      ...(input.ownerGithubId ? { ownerGithubId: input.ownerGithubId } : {}),
     })
     .returning();
 

@@ -21,7 +21,7 @@ const errorsQuery = overviewQuery.extend({
 
 export function registerAnalyticsRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
   app.get("/v1/analytics/overview", { preHandler: auth }, async (request) => {
     const query = parseInput(overviewQuery, request.query);

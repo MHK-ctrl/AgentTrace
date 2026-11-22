@@ -179,10 +179,10 @@ export default function ProjectsPage() {
       <div className="mt-4 rounded-xl border border-line bg-panel p-4">
         <h3 className="text-xs font-semibold text-ink">Isolation model</h3>
         <p className="mt-1 max-w-3xl text-[11px] leading-relaxed text-muted">
-          API keys are scoped to one project. Ingestion writes are constrained to the key's project,
-          and WebSocket subscriptions are bound to a single project, so telemetry is never broadcast
-          across projects. The dashboard itself is a local admin surface protected by a server-side
-          token.
+          Each project belongs to the GitHub account that created it. The API only returns projects
+          owned by the signed-in account, and rejects another account's project id with 404. API keys
+          and WebSocket subscriptions are bound to one project, so telemetry is never broadcast
+          across accounts. The owner token remains an admin credential.
         </p>
       </div>
 

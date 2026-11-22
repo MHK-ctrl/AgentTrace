@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { hasAdminSession } from "@/lib/admin-auth";
+import { getDashboardActor, ownerHeaders } from "@/lib/user-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,9 +18,10 @@ function sameOrigin(request: NextRequest): boolean {
 }
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
-  if (!(await hasAdminSession())) {
+  const actor = await getDashboardActor();
+  if (!actor) {
     return NextResponse.json(
-      { error: { code: "unauthorized", message: "Owner sign-in is required" } },
+      { error: { code: "unauthorized", message: "Sign-in is required" } },
       { status: 401, headers: { "cache-control": "no-store" } },
     );
   }
@@ -52,6 +53,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
     method: request.method,
     headers: {
       authorization: `Bearer ${TOKEN}`,
+      ...ownerHeaders(actor),
       "user-agent": "agenttrace-dashboard/0.1.0",
     },
     cache: "no-store",

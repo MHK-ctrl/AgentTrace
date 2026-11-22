@@ -26,7 +26,7 @@ const exportQuery = detailQuery.extend({
 
 export function registerTraceRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
   app.get("/v1/traces", { preHandler: auth }, async (request) => {
     const query = parseInput(listQuery, request.query);

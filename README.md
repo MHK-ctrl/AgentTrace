@@ -170,6 +170,10 @@ Copy `.env.example` to `.env` or let `npm run setup` generate it.
 | `AGENTTRACE_DASHBOARD_URL` | `http://localhost:3000` | Base URL used in share links |
 | `AGENTTRACE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated allowed origins |
 | `AGENTTRACE_DASHBOARD_TOKEN` | generated | Shared admin secret; must stay server-side |
+| `AGENTTRACE_SESSION_SECRET` | derived | Signs GitHub user session cookies; use a dedicated random value |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | — | GitHub OAuth App credentials for account sign-in |
+| `AGENTTRACE_GITHUB_CALLBACK_URL` | `<dashboard>/api/auth/github/callback` | OAuth callback registered on GitHub |
+| `NEXT_PUBLIC_AGENTTRACE_API_URL` | `http://localhost:4000` | API endpoint shown in the SDK snippet |
 | `AGENTTRACE_DEMO_PROJECT_ID` | fixed UUID | Demo project id |
 | `AGENTTRACE_DEMO_API_KEY` | generated | Demo ingestion key used by the example agent |
 | `AGENTTRACE_SEED_DEMO` | `1` | Include synthetic demo seed data |
@@ -228,9 +232,10 @@ AgentTrace is deployed on **100% free-tier hosting** with shareable URLs:
 
 | Component | URL | Status |
 | --- | --- | --- |
-| **Dashboard (frontend)** | `https://cerulean-travesseiro-4c6d32.netlify.app` | ✅ Live, public, no login required |
+| **Dashboard (frontend)** | `https://agenttrace-dashboard.onrender.com` | ✅ Live; GitHub sign-in for private workspaces |
 | **API Backend** | `https://agenttrace-api-glry.onrender.com` | ✅ Free-tier Hobby (sleeps after 15min inactivity) |
-| **PostgreSQL Database** | Neon `crimson-wind-52900058` | ✅ 8 tables, migrations applied |
+| **PostgreSQL Database** | Render Postgres `agenttrace-db` | ✅ Migrations applied on deploy |
+| **Old Netlify URL** | `https://cerulean-travesseiro-4c6d32.netlify.app` | 301 redirect to the Render dashboard |
 
 ⚠️ **Render API warmup note**: The first request after 15 minutes of inactivity may return 503 while the service wakes. The included `keep-alive.js` script pings every 5 minutes to minimize this.
 
@@ -245,9 +250,9 @@ Verified on **2026-11-20** (macOS arm64, Node 26.0.0, PostgreSQL 16.14, Playwrig
 | Browser tests | `npm run test:e2e` | 9/9 pass |
 | Production build | `npm run build` | Pass |
 | Screenshots | `npm run screenshots` | 12 captured from the running dashboard |
-| **Live dashboard** | `curl -s https://cerulean-travesseiro-4c6d32.netlify.app/` | 200, AgentTrace landing page |
+| **Live dashboard** | `curl -s https://agenttrace-dashboard.onrender.com/` | 200, AgentTrace landing page |
 | **API health** | `curl -s https://agenttrace-api-glry.onrender.com/health` | 200 (after warmup) |
-| **CORS configured** | `https://cerulean-travesseiro-4c6d32.netlify.app` | Allowed origin in Render config |
+| **CORS configured** | `https://agenttrace-dashboard.onrender.com` | Allowed origin in Render config |
 
 The browser suite covers real navigation, search/filtering, comparison, all four trace views,
 playback, Markdown export download, sharing dialog, demo execution, API-key create/revoke, pricing
@@ -255,9 +260,11 @@ create/delete, error analytics and mobile navigation.
 
 ## Security and data handling
 
-- Single-tenant, local-first admin surface. No SSO/RBAC; do not expose it directly to the public
-  internet.
-- Dashboard token stays in Next.js server code and is never sent to the browser.
+- GitHub OAuth accounts are isolated tenants: each account can only list and mutate projects
+  whose `owner_github_id` matches its GitHub numeric id. Cross-account project IDs return 404.
+- The legacy owner token (`AGENTTRACE_DASHBOARD_TOKEN`) is an admin credential and bypasses tenant
+  scoping; it stays in Next.js server code and is never sent to the browser.
+- There are no teams or organization memberships yet. Share individual traces with read-only links.
 - API keys and share tokens are stored as SHA-256 hashes; raw values are shown once.
 - Every read/write is project-scoped. WebSocket tickets are 60-second, single-use and project-bound.
 - CORS allow-list, security headers, request limits, Zod validation and rate limits.

@@ -25,17 +25,23 @@ export interface SpanTokenUsage {
   total?: number;
 }
 
-export const projects = pgTable("projects", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull(),
-  description: text("description"),
-  isDemo: boolean("is_demo").notNull().default(false),
-  /** Ephemeral anonymous demo workspace, never listed in the owner console. */
-  isPublicDemo: boolean("is_public_demo").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** GitHub numeric account id. Null means the legacy owner/admin workspace. */
+    ownerGithubId: text("owner_github_id"),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    description: text("description"),
+    isDemo: boolean("is_demo").notNull().default(false),
+    /** Ephemeral anonymous demo workspace, never listed in the owner console. */
+    isPublicDemo: boolean("is_public_demo").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("projects_owner_github_idx").on(table.ownerGithubId)],
+);
 
 export const apiKeys = pgTable(
   "api_keys",

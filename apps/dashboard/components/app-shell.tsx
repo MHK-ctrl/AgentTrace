@@ -23,6 +23,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { useWorkspace, type RangePreset } from "@/components/providers";
 import { Spinner } from "@/components/ui";
+import type { GitHubUser } from "@/lib/user-auth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -121,7 +122,7 @@ function SidebarStatus() {
   const connected = realtimeStatus === "connected";
 
   const signOut = async () => {
-    await fetch("/api/admin/logout", { method: "POST" }).catch(() => undefined);
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     router.replace("/login");
     router.refresh();
   };
@@ -212,7 +213,7 @@ function LiveIndicator() {
   );
 }
 
-function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
+function Topbar({ onOpenMenu, user }: { onOpenMenu: () => void; user: GitHubUser | null }) {
   const {
     projects,
     projectsLoading,
@@ -318,8 +319,11 @@ function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           >
             <Settings className="h-4 w-4" />
           </Link>
-          <div className="ml-1 flex h-7 w-7 items-center justify-center rounded-full border border-line-strong bg-panel-3 font-mono text-[10px] font-medium text-muted">
-            AT
+          <div
+            className="ml-1 flex h-7 w-7 items-center justify-center rounded-full border border-line-strong bg-panel-3 font-mono text-[10px] font-medium uppercase text-muted"
+            title={user ? `Signed in as @${user.login}` : "Owner console"}
+          >
+            {user ? user.login.slice(0, 2) : "AT"}
           </div>
         </div>
       </div>
@@ -327,7 +331,13 @@ function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   );
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  user = null,
+}: {
+  children: ReactNode;
+  user?: GitHubUser | null;
+}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -358,7 +368,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       ) : null}
 
       <div className="lg:pl-[236px]">
-        <Topbar onOpenMenu={() => setMenuOpen(true)} />
+        <Topbar onOpenMenu={() => setMenuOpen(true)} user={user} />
         <main className="mx-auto w-full max-w-[1560px] px-4 py-5 md:px-6 md:py-6 lg:px-8">
           {children}
         </main>

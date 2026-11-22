@@ -19,15 +19,18 @@ const updateProjectSchema = z.object({
 
 export function registerProjectRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
-  app.get("/v1/projects", { preHandler: auth }, async () => {
-    return { projects: await listProjects(deps.db) };
+  app.get("/v1/projects", { preHandler: auth }, async (request) => {
+    return { projects: await listProjects(deps.db, request.dashboardOwnerId) };
   });
 
   app.post("/v1/projects", { preHandler: auth }, async (request, reply) => {
     const body = parseInput(createProjectSchema, request.body);
-    const project = await createProject(deps.db, body);
+    const project = await createProject(deps.db, {
+      ...body,
+      ownerGithubId: request.dashboardOwnerId,
+    });
     return reply.status(201).send({ project });
   });
 

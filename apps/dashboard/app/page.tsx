@@ -239,7 +239,7 @@ export default function LandingPage() {
               href="/login"
               className="focus-ring hidden rounded-lg px-2.5 py-2 text-[11px] text-faint transition hover:text-ink sm:block"
             >
-              Owner console
+              Sign in
             </Link>
             <PrimaryLink href="/demo">
               <PlayCircle className="h-3.5 w-3.5" /> Live demo
@@ -277,13 +277,16 @@ export default function LandingPage() {
                 <PrimaryLink href="/demo">
                   Explore live demo <ArrowRight className="h-4 w-4" />
                 </PrimaryLink>
+                <SecondaryLink href="/login">
+                  <GithubIcon className="h-4 w-4" /> Sign in with GitHub
+                </SecondaryLink>
                 <SecondaryLink href={GITHUB_URL} external>
                   <GithubIcon className="h-4 w-4" /> View on GitHub
                 </SecondaryLink>
               </div>
               <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] text-faint">
                 <span className="flex items-center gap-1.5">
-                  <Check className="h-3 w-3 text-success" /> No sign-up
+                  <Check className="h-3 w-3 text-success" /> Private GitHub workspaces
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Check className="h-3 w-3 text-success" /> Synthetic demo data

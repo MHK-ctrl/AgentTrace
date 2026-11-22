@@ -18,7 +18,7 @@ export function registerRealtimeRoutes(app: FastifyInstance, deps: RouteDeps): v
   app.post(
     "/v1/realtime/ticket",
     {
-      preHandler: (request) => requireDashboardToken(request, deps.config),
+      preHandler: (request) => requireDashboardToken(request, deps.config, deps.db),
       config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     },
     async (request) => {

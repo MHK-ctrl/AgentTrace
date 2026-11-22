@@ -24,7 +24,7 @@ const tokenParams = z.object({ token: z.string().min(20).max(200) });
 
 export function registerShareRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
   app.post("/v1/traces/:traceId/shares", { preHandler: auth }, async (request, reply) => {
     const { traceId } = parseInput(traceParamsSchema, request.params);

@@ -15,6 +15,9 @@ const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? "";
 const DASHBOARD_TOKEN = "test-dashboard-token-0123456789abcdef";
 const MIGRATION_PATH = fileURLToPath(new URL("../drizzle/0001_keen_leader.sql", import.meta.url));
 const INIT_MIGRATION_PATH = fileURLToPath(new URL("../drizzle/0000_init.sql", import.meta.url));
+const GITHUB_MIGRATION_PATH = fileURLToPath(
+  new URL("../drizzle/0002_github_accounts.sql", import.meta.url),
+);
 
 if (!TEST_DATABASE_URL) {
   throw new Error("TEST_DATABASE_URL is required. Run `npm run setup` first.");
@@ -58,6 +61,8 @@ async function resetDatabase(): Promise<void> {
     await admin.unsafe(initMigration);
     const migration = await readFile(MIGRATION_PATH, "utf8");
     await admin.unsafe(migration);
+    const githubMigration = await readFile(GITHUB_MIGRATION_PATH, "utf8");
+    await admin.unsafe(githubMigration);
   } finally {
     await admin.end({ timeout: 5 });
   }
@@ -332,6 +337,82 @@ describe("projects and API keys", () => {
       url: `/v1/api-keys?projectId=${randomUUID()}`,
     });
     expect(missingProject.statusCode).toBe(404);
+  });
+});
+
+describe("GitHub tenant isolation", () => {
+  it("scopes projects, keys and traces to the signed-in GitHub account", async () => {
+    const ownerA = "900000001";
+    const ownerB = "900000002";
+    const asA = { "x-agenttrace-owner-id": ownerA };
+    const asB = { "x-agenttrace-owner-id": ownerB };
+
+    const createA = await request({
+      method: "POST",
+      url: "/v1/projects",
+      headers: asA,
+      payload: { name: "Tenant A project" },
+    });
+    expect(createA.statusCode).toBe(201);
+    const projectA = createA.json().project as Project;
+
+    const createB = await request({
+      method: "POST",
+      url: "/v1/projects",
+      headers: asB,
+      payload: { name: "Tenant B project" },
+    });
+    expect(createB.statusCode).toBe(201);
+    const projectB = createB.json().project as Project;
+
+    const listA = await request({ method: "GET", url: "/v1/projects", headers: asA });
+    expect(listA.statusCode).toBe(200);
+    const idsA = (listA.json().projects as Project[]).map((project) => project.id);
+    expect(idsA).toContain(projectA.id);
+    expect(idsA).not.toContain(projectB.id);
+
+    const foreignDetail = await request({
+      method: "GET",
+      url: `/v1/projects/${projectB.id}`,
+      headers: asA,
+    });
+    expect(foreignDetail.statusCode).toBe(404);
+
+    const foreignPatch = await request({
+      method: "PATCH",
+      url: `/v1/projects/${projectB.id}`,
+      headers: asA,
+      payload: { name: "Hijacked" },
+    });
+    expect(foreignPatch.statusCode).toBe(404);
+
+    const foreignTraces = await request({
+      method: "GET",
+      url: `/v1/traces?projectId=${projectB.id}`,
+      headers: asA,
+    });
+    expect(foreignTraces.statusCode).toBe(404);
+
+    const foreignKey = await request({
+      method: "POST",
+      url: "/v1/api-keys",
+      headers: asA,
+      payload: { projectId: projectB.id, name: "Cross-tenant key" },
+    });
+    expect(foreignKey.statusCode).toBe(404);
+
+    const ownKey = await request({
+      method: "POST",
+      url: "/v1/api-keys",
+      headers: asA,
+      payload: { projectId: projectA.id, name: "Tenant A key" },
+    });
+    expect(ownKey.statusCode).toBe(201);
+
+    const adminList = await request({ method: "GET", url: "/v1/projects" });
+    const adminIds = (adminList.json().projects as Project[]).map((project) => project.id);
+    expect(adminIds).toContain(projectA.id);
+    expect(adminIds).toContain(projectB.id);
   });
 });
 

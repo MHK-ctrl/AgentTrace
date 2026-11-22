@@ -34,7 +34,8 @@ export default function ApiKeysPage() {
   const [created, setCreated] = useState<{ key: string; name: string } | null>(null);
   const [revoking, setRevoking] = useState<string | null>(null);
 
-  const endpoint = typeof window !== "undefined" ? "http://localhost:4000" : "http://localhost:4000";
+  const endpoint =
+    process.env.NEXT_PUBLIC_AGENTTRACE_API_URL?.replace(/\/+$/, "") ?? "http://localhost:4000";
 
   const create = async () => {
     if (!projectId || !name.trim()) {

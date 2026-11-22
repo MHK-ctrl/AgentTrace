@@ -15,7 +15,7 @@ const runSchema = z.object({
 
 export function registerDemoRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
   app.post(
     "/v1/demo/run",

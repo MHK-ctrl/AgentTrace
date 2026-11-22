@@ -15,7 +15,7 @@ const keyParams = z.object({ apiKeyId: z.string().uuid() });
 
 export function registerApiKeyRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
   app.get("/v1/api-keys", { preHandler: auth }, async (request) => {
     const { projectId } = parseInput(projectIdQuerySchema, request.query);

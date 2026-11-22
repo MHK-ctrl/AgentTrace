@@ -26,7 +26,7 @@ function internalEndpoint(app: FastifyInstance, fallbackPort: number): string {
 
 export function registerPublicDemoRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
   const enabled = () => {
     if (!deps.config.publicDemoEnabled) throw notFound("The public demo is disabled");
   };

@@ -60,6 +60,14 @@ services:
         value: wss://agenttrace-api-glry.onrender.com
       - key: AGENTTRACE_DASHBOARD_URL
         value: https://agenttrace-dashboard.onrender.com
+      - key: AGENTTRACE_GITHUB_CALLBACK_URL
+        value: https://agenttrace-dashboard.onrender.com/api/auth/github/callback
+      - key: NEXT_PUBLIC_AGENTTRACE_API_URL
+        value: https://agenttrace-api-glry.onrender.com
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
       - key: AGENTTRACE_DASHBOARD_TOKEN
         sync: false
       - key: AGENTTRACE_SESSION_SECRET

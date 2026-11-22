@@ -21,7 +21,7 @@ const updateBody = pricingUpdateSchema.extend({
 
 export function registerPricingRoutes(app: FastifyInstance, deps: RouteDeps): void {
   const auth = (request: Parameters<typeof requireDashboardToken>[0]) =>
-    requireDashboardToken(request, deps.config);
+    requireDashboardToken(request, deps.config, deps.db);
 
   app.get("/v1/pricing", { preHandler: auth }, async (request) => {
     const { projectId } = parseInput(projectIdQuerySchema, request.query);

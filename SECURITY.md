@@ -1,8 +1,9 @@
 # Security
 
-AgentTrace is a developer preview and has **not** undergone a formal security audit. It is designed
-as a local-first, single-tenant control plane, not as a public multi-tenant SaaS. Review this
-document before exposing it beyond a trusted network.
+AgentTrace is a developer preview and has **not** undergone a formal security audit. It supports
+GitHub OAuth accounts with per-account project isolation, plus a legacy owner credential for
+administration. It has no organization/team roles or audit log. Review this document before
+exposing it beyond a trusted network.
 
 ## Supported versions
 
@@ -22,13 +23,15 @@ volunteer project, so no formal SLA is offered.
 
 ### Dashboard access
 
-- The dashboard is protected by `AGENTTRACE_DASHBOARD_TOKEN`, a long random server-side secret.
-- Browser requests go through a Next.js server proxy; the token is never sent to the browser,
-  embedded in client JavaScript, or stored in localStorage.
-- Dashboard token comparison hashes both values and uses constant-time comparison.
-- `npm run setup` generates a 64-character hex token and writes `.env` with mode `0600`.
-- There is no user account system, RBAC, or audit log. Anyone with the dashboard token has full
-  control of the local workspace.
+- Users sign in with GitHub OAuth. The session is a signed, HttpOnly cookie tied to the GitHub
+  numeric account id; the OAuth state is validated on callback.
+- The dashboard maps that id to the `x-agenttrace-owner-id` header on server-to-server API calls.
+  A signed-in account can only list or mutate projects it owns; another account's project id
+  returns `404`.
+- `AGENTTRACE_DASHBOARD_TOKEN` remains a server-side admin credential. It is never sent to the
+  browser; browser requests go through the Next.js proxy.
+- Dashboard token and cookie signatures use constant-time comparison.
+- There is no team/role model or audit log. The owner credential has full control of the deployment.
 
 ### Ingestion keys
 
@@ -41,8 +44,9 @@ volunteer project, so no formal SLA is offered.
 ### Project isolation
 
 Every trace, span, event, pricing rule, key and share lookup includes the project id. Queries use
-parameterized SQL. Trace/span writes verify ownership before mutation; a forged id cannot overwrite
-another project's data.
+parameterized SQL. Dashboard routes also verify that the project belongs to the signed-in GitHub
+account before running; a forged project id cannot read or overwrite another account's data. Trace
+and span writes verify ownership before mutation.
 
 ### Share links
 
@@ -103,14 +107,16 @@ If you deploy AgentTrace beyond localhost:
 7. Configure database backups and a retention policy. AgentTrace does not delete old traces
    automatically.
 8. Revoke demo keys and disable demo seeding (`AGENTTRACE_SEED_DEMO=0`) in real deployments.
-9. Serve over a trusted network only; there is no SSO, RBAC or per-user audit trail.
+9. Keep GitHub OAuth credentials and `AGENTTRACE_SESSION_SECRET` server-side. There is no RBAC,
+   team membership or per-user audit trail yet.
 10. Monitor for unusual ingestion volume and share-link access; rate limits are per process and not
     a substitute for infrastructure protections.
 
 ## Known limitations
 
-- No formal audit, penetration test, SSO, RBAC or audit logging.
-- Dashboard token is a single shared admin credential; there is no session expiry UI.
+- No formal audit, penetration test, RBAC, team sharing or audit logging.
+- The dashboard token is a shared admin credential that bypasses GitHub tenancy; protect it carefully.
+- GitHub session cookies last seven days; sign-out clears them but there is no server-side revocation list.
 - WebSocket fan-out is in-memory and single-instance.
 - Rate limiting is in-process by default; multi-replica deployments need a shared rate-limit store.
 - Redaction cannot detect every secret, especially arbitrary free text.

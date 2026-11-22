@@ -77,10 +77,12 @@ their parent.
 
 ## API and dashboard boundary
 
-The dashboard is a local-first, single-tenant admin surface. The browser never holds
-`AGENTTRACE_DASHBOARD_TOKEN`:
+The dashboard supports GitHub OAuth accounts with per-account project ownership, plus a legacy
+owner credential. The browser never holds `AGENTTRACE_DASHBOARD_TOKEN`:
 
-- Dashboard fetches go to `/api/backend/*`, which attaches the admin token on the server.
+- GitHub sign-in creates a signed HttpOnly session cookie containing the account's GitHub numeric id.
+- Dashboard fetches go to `/api/backend/*`, which attaches the admin token and
+  `x-agenttrace-owner-id` on the server. The API rejects projects not owned by that id with `404`.
 - The browser receives only the proxied response.
 - The realtime ticket route issues a 60-second, single-use ticket bound to a project. The browser
   passes it as a WebSocket subprotocol; it is not placed in a URL or localStorage.

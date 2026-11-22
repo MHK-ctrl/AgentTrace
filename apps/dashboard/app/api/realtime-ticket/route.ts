@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { hasAdminSession } from "@/lib/admin-auth";
+import { getDashboardActor, ownerHeaders } from "@/lib/user-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,11 +20,9 @@ function sameOrigin(request: NextRequest): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  if (!(await hasAdminSession())) {
-    return NextResponse.json(
-      { error: { message: "Owner sign-in is required" } },
-      { status: 401 },
-    );
+  const actor = await getDashboardActor();
+  if (!actor) {
+    return NextResponse.json({ error: { message: "Sign-in is required" } }, { status: 401 });
   }
   if (!sameOrigin(request)) {
     return NextResponse.json({ error: { message: "Cross-origin request rejected" } }, { status: 403 });
@@ -57,6 +55,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         authorization: `Bearer ${TOKEN}`,
+        ...ownerHeaders(actor),
         "content-type": "application/json",
       },
       body: JSON.stringify({ projectId }),
