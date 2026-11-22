@@ -6,6 +6,14 @@
   # The build script creates .next/ at root containing both app and package outputs
   publish = "apps/dashboard/.next"
 
+# Netlify's Next.js runtime breaks React hydration on this app. The dashboard
+# now runs on Render, so keep the original public URL as a permanent redirect.
+[[redirects]]
+  from = "/*"
+  to = "https://agenttrace-dashboard.onrender.com/:splat"
+  status = 301
+  force = true
+
 [context.production]
   # Environment variables for production deploy
   [env]
