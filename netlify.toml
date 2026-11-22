@@ -9,7 +9,7 @@
 [context.production]
   # Environment variables for production deploy
   [env]
-    AGENTTRACE_API_URL = "https://agenttrace-api.onrender.com"
+    AGENTTRACE_API_URL = "https://agenttrace-api-glry.onrender.com"
     AGENTTRACE_API_PORT = "4000"
     AGENTTRACE_CORS_ORIGINS = "https://cerulean-travesseiro-4c6d32.netlify.app"
     # AGENTTRACE_DASHBOARD_TOKEN is a secret: set it in the Netlify UI

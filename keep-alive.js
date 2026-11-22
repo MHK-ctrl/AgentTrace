@@ -10,7 +10,7 @@
  */
 
 const http = require('http');
-const apiUrl = process.env.API_URL || 'https://agenttrace-api.onrender.com/health';
+const apiUrl = process.env.API_URL || 'https://agenttrace-api-glry.onrender.com/health';
 const INTERVAL = parseInt(process.env.PING_INTERVAL) || 300000; // 5 minutes default
 const HOST = apiUrl.replace('https://', '').replace('http://', '').split('/')[0];
 const PATH = apiUrl.replace('https://' + HOST + '/', '').replace('http://' + HOST + '/', '') || '/health';

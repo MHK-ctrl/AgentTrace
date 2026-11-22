@@ -88,7 +88,7 @@ Verify:
    ```
    NODE_ENV=production
    AGENTTRACE_DASHBOARD_TOKEN=REPLACE_WITH_A_FRESH_32_BYTE_HEX_TOKEN
-   AGENTTRACE_API_URL=https://agenttrace-api.onrender.com
+   AGENTTRACE_API_URL=https://agenttrace-api-glry.onrender.com
    AGENTTRACE_API_PORT=4000
    AGENTTRACE_DASHBOARD_URL=https://cerulean-travesseiro-4c6d32.netlify.app
    AGENTTRACE_CORS_ORIGINS=https://cerulean-travesseiro-4c6d32.netlify.app
@@ -103,7 +103,7 @@ Verify:
 5. **Deploy**:
    - Click "Create Web Service"
    - Wait 2-3 minutes for first build/deploy
-   - Service URL will be like: `https://agenttrace-api.onrender.com`
+   - Service URL will be like: `https://agenttrace-api-glry.onrender.com`
 
 6. **Verify**:
    - Visit the service URL
@@ -119,7 +119,7 @@ Render free-tier services sleep after **15 minutes of inactivity**. To minimize 
   # From AgentTrace root
   node keep-alive.js
   ```
-  This pings `https://agenttrace-api.onrender.com/health` every 5 minutes.
+  This pings `https://agenttrace-api-glry.onrender.com/health` every 5 minutes.
   
   Or add to your system cron (crontab):
   ```
@@ -154,7 +154,7 @@ Render free-tier services sleep after **15 minutes of inactivity**. To minimize 
 3. **Add Environment Variables** (Site → Site settings → Build & deploy → Environment):
 
    ```
-   AGENTTRACE_API_URL=https://agenttrace-api.onrender.com
+   AGENTTRACE_API_URL=https://agenttrace-api-glry.onrender.com
    AGENTTRACE_DASHBOARD_TOKEN=REPLACE_WITH_A_FRESH_32_BYTE_HEX_TOKEN
    NEXT_PUBLIC_SITE_URL=https://cerulean-travesseiro-4c6d32.netlify.app
    ```
@@ -223,7 +223,7 @@ gh repo set-topics MHK-ctrl/AgentTrace \
 |---|---|
 | Frontend loads publicly | `https://cerulean-travesseiro-4c6d32.netlify.app` shows landing page |
 | Demo page works | Navigate to `/demo` and run sample agent |
-| API health endpoint | `GET https://agenttrace-api.onrender.com/health` returns 200 |
+| API health endpoint | `GET https://agenttrace-api-glry.onrender.com/health` returns 200 |
 | WebSocket connectivity | Open devtools → WS connection to `/ws?projectId=...` |
 | API tests pass (remote) | Run with remote DATABASE_URL |
 | SDK tests pass | `npm run test:sdk` |
@@ -241,7 +241,7 @@ gh repo set-topics MHK-ctrl/AgentTrace \
 |---|---|---|
 | `NODE_ENV` | `production` | Standard |
 | `AGENTTRACE_DASHBOARD_TOKEN` | Generated with `openssl rand -hex 32` | Set in the Render dashboard; never commit it |
-| `AGENTTRACE_API_URL` | `https://agenttrace-api.onrender.com` | Set after Render deploy |
+| `AGENTTRACE_API_URL` | `https://agenttrace-api-glry.onrender.com` | Set after Render deploy |
 | `AGENTTRACE_API_PORT` | `4000` | Port Fastify listens on |
 | `AGENTTRACE_DASHBOARD_URL` | `https://cerulean-travesseiro-4c6d32.netlify.app` | Set after Netlify deploy |
 | `AGENTTRACE_CORS_ORIGINS` | `https://cerulean-travesseiro-4c6d32.netlify.app` | Netlify URL |
@@ -255,7 +255,7 @@ gh repo set-topics MHK-ctrl/AgentTrace \
 ### Netlify Dashboard:
 | Variable | Value | Source |
 |---|---|---|
-| `AGENTTRACE_API_URL` | `https://agenttrace-api.onrender.com` | Render service URL |
+| `AGENTTRACE_API_URL` | `https://agenttrace-api-glry.onrender.com` | Render service URL |
 | `AGENTTRACE_DASHBOARD_TOKEN` | Same token as Render | Set in Netlify UI; never commit it |
 | `NEXT_PUBLIC_SITE_URL` | `https://cerulean-travesseiro-4c6d32.netlify.app` | Netlify URL |
 
@@ -325,7 +325,7 @@ curl http://127.0.0.1:4000/health
 
 # 3. Open both live URLs in browser
 #   - Dashboard: https://cerulean-travesseiro-4c6d32.netlify.app
-#   - API health: https://agenttrace-api.onrender.com/health
+#   - API health: https://agenttrace-api-glry.onrender.com/health
 ```
 
 ---
