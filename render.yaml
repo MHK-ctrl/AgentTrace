@@ -25,9 +25,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: AGENTTRACE_DASHBOARD_URL
-        value: https://cerulean-travesseiro-4c6d32.netlify.app
+        value: https://agenttrace-dashboard.onrender.com
       - key: AGENTTRACE_CORS_ORIGINS
-        value: https://cerulean-travesseiro-4c6d32.netlify.app
+        value: https://agenttrace-dashboard.onrender.com
       - key: AGENTTRACE_PUBLIC_DEMO
         value: "true"
       - key: AGENTTRACE_DEMO_TTL_HOURS
@@ -58,6 +58,8 @@ services:
         value: https://agenttrace-api-glry.onrender.com
       - key: AGENTTRACE_WS_URL
         value: wss://agenttrace-api-glry.onrender.com
+      - key: AGENTTRACE_DASHBOARD_URL
+        value: https://agenttrace-dashboard.onrender.com
       - key: AGENTTRACE_DASHBOARD_TOKEN
         sync: false
       - key: AGENTTRACE_SESSION_SECRET
