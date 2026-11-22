@@ -4,22 +4,18 @@
 # Secrets are intentionally NOT committed. Set these in the Render dashboard:
 #   DATABASE_URL                 (Neon/Supabase Postgres connection string)
 #   AGENTTRACE_DASHBOARD_TOKEN   (32-byte hex, must match the dashboard env)
-#   AGENTTRACE_DEMO_PROJECT_ID   (project that owns public demo sessions)
-#   AGENTTRACE_DEMO_API_KEY      (API key for that project)
 
 services:
   - type: web
     name: agenttrace-api
     runtime: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm ci --include=dev && npm run build -w @agenttrace/api
     startCommand: npm run start:api
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: AGENTTRACE_API_PORT
-        value: "4000"
       - key: AGENTTRACE_DASHBOARD_URL
         value: https://cerulean-travesseiro-4c6d32.netlify.app
       - key: AGENTTRACE_CORS_ORIGINS
@@ -37,8 +33,4 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: AGENTTRACE_DASHBOARD_TOKEN
-        sync: false
-      - key: AGENTTRACE_DEMO_PROJECT_ID
-        sync: false
-      - key: AGENTTRACE_DEMO_API_KEY
         sync: false
