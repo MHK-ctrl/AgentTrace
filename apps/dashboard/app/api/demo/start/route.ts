@@ -34,33 +34,41 @@ function allowSessionStart(address: string): boolean {
   return current.count <= MAX_SESSIONS;
 }
 
+/*
+ * Netlify invokes the route with its internal deploy hostname in request.url.
+ * Redirecting against that URL exposes the deploy-specific host to visitors,
+ * so production redirects use the configured public dashboard origin.
+ */
+function redirectTo(request: NextRequest, path: string): NextResponse {
+  const configured = process.env.AGENTTRACE_DASHBOARD_URL?.trim();
+  const base =
+    process.env.NODE_ENV === "production" && configured
+      ? configured.replace(/\/+$/, "")
+      : request.nextUrl.origin;
+  return NextResponse.redirect(new URL(path, base), {
+    headers: { "cache-control": "no-store" },
+  });
+}
+
 export async function GET(request: NextRequest) {
   const next = sanitizeDemoNext(request.nextUrl.searchParams.get("next"));
   let existing;
   try {
     existing = await resolveDemoSession();
   } catch {
-    return NextResponse.redirect(new URL("/demo-unavailable?reason=unavailable", request.url), {
-      headers: { "cache-control": "no-store" },
-    });
+    return redirectTo(request, "/demo-unavailable?reason=unavailable");
   }
   if (existing) {
-    return NextResponse.redirect(new URL(next, request.url), {
-      headers: { "cache-control": "no-store" },
-    });
+    return redirectTo(request, next);
   }
 
   if (!allowSessionStart(clientAddress(request))) {
-    return NextResponse.redirect(new URL("/demo-unavailable?reason=busy", request.url), {
-      headers: { "cache-control": "no-store" },
-    });
+    return redirectTo(request, "/demo-unavailable?reason=busy");
   }
 
   try {
     const session = await createDemoSession();
-    const response = NextResponse.redirect(new URL(next, request.url), {
-      headers: { "cache-control": "no-store" },
-    });
+    const response = redirectTo(request, next);
     response.cookies.set(
       DEMO_COOKIE,
       demoSecretCookie(session, session.token),
@@ -68,8 +76,6 @@ export async function GET(request: NextRequest) {
     );
     return response;
   } catch {
-    return NextResponse.redirect(new URL("/demo-unavailable?reason=unavailable", request.url), {
-      headers: { "cache-control": "no-store" },
-    });
+    return redirectTo(request, "/demo-unavailable?reason=unavailable");
   }
 }
