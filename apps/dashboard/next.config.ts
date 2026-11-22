@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   devIndicators: false,
-  output: "standalone",
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts"],
     // Disable Turbopack, use webpack instead
@@ -28,8 +27,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Configure for static export to work with Netlify
-  // This generates static HTML that Netlify can serve without a server
   trailingSlash: true,
 };
 
